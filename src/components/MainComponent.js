@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
-import { Navbar, NavbarBrand } from 'reactstrap';
-import Directory from "./DirectoryComponent"
 import {CAMPSITES} from "../shared/campsites";
+import Header from "../components/HeaderComponent.js";
+import Directory from "./DirectoryComponent"
 import CampsiteInfo from "./CampsiteInfoComponent"; 
+import Footer from "../components/FooterComponent.js"
+import Home from "./HomeComponent.js";
+import {Switch, Route, Redirect} from "react-router-dom";
 
 class Main extends Component {
     constructor(props)
@@ -10,25 +13,22 @@ class Main extends Component {
         super(props); 
         this.state={
             campsites: CAMPSITES, 
-            selectedCampsite: null
         };
     }
 
-    onCampsiteSelect(siteId)
-    {
-        this.setState({selectedCampsite: siteId})
-    }   
-
     render() {
+        const HomePage =() =>{
+            return (<Home />);
+        }
         return (
             <div>
-                <Navbar dark color="primary">
-                <div className="container">
-                    <NavbarBrand href="/">NuCamp</NavbarBrand>
-                </div>
-                </Navbar>
-                <Directory campsites={this.state.campsites} onClick={siteId =>this.onCampsiteSelect(siteId)}/>
-                <CampsiteInfo campsite={this.state.campsites.filter(campsite=>campsite.id === this.state.selectedCampsite)[0]}/>   
+                <Header />
+                <Switch >
+                <Route path="/home" component={HomePage}/>
+                <Route exact path="/directory" render= {()=><Directory campsites={this.state.campsites}/>}/>
+                <Redirect to="/home" />
+                </Switch>
+                <Footer />   
             </div>
         );
     }
