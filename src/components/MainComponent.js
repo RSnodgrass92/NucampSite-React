@@ -10,11 +10,17 @@ import {CAMPSITES} from '../shared/campsites';
 import {COMMENTS} from '../shared/comments';
 import {PARTNERS} from '../shared/partners';
 import {PROMOTIONS} from '../shared/promotions';
+import About from "./AboutComponent.js"
+
+
 
 class Main extends Component {
     constructor(props)
+    
+   
+
     {
-        super(props); 
+        super(props);     
         this.state={
             campsites: CAMPSITES, 
             comments: COMMENTS,
@@ -25,6 +31,7 @@ class Main extends Component {
 
     render() {
         const HomePage = () =>{
+            
             return (
             <Home   campsite= {this.state.campsites.filter(campsite=> campsite.featured)[0]}
                     promotion= {this.state.promotions.filter(promotion=> promotion.featured)[0]}
@@ -48,6 +55,7 @@ class Main extends Component {
                 <Route exact path="/directory" render= {()=><Directory campsites={this.state.campsites}/>}/>
                 <Route path="/directory/:campsiteId" component={CampsiteWithId}/>
                 <Route exact path="/contactus" component={Contact}/>
+                <Route exact path="/aboutus" render={()=><About partners={PARTNERS} />}/>
                 <Redirect to="/home" /> 
                 </Switch>
                 <Footer />   
