@@ -28,7 +28,7 @@ function RenderCampsite({campsite})
     }
 }
 
-function RenderComments({comments})
+function RenderComments({comments, addComment, campsiteId})
 {
     if (comments)
     {
@@ -46,7 +46,7 @@ function RenderComments({comments})
                     )
                  })
                 }
-                <CommentForm />
+                <CommentForm campsiteId={campsiteId} addComment={addComment} />
         </div>
             ) 
     }
@@ -72,7 +72,11 @@ function CampsiteInfo(props) {
                 </div>
                 <div className="row">
                     <RenderCampsite campsite={props.campsite} />
-                    <RenderComments comments={props.comments} />
+                    <RenderComments 
+                        comments={props.comments}
+                        addComment={props.addComment}
+                        campsiteId={props.campsite.id}
+                    />
                 </div>
             </div>
         );
@@ -93,14 +97,12 @@ class CommentForm extends Component
     }
 
     toggleModal(){
-        console.log("hello")
         this.setState({isModalOpen: !this.state.isModalOpen});
     }
 
-    handleSubmit(values)
-    {
-        console.log("Current state is: "+ JSON.stringify(values)); 
-        alert("Current state is: "+ JSON.stringify(values));
+    handleSubmit(values) {
+        this.toggleModal();
+        this.props.addComment(this.props.campsiteId, values.rating, values.author, values.text);
     }
 
     render()
@@ -149,7 +151,7 @@ class CommentForm extends Component
                         <Label htmlFor="name" md={12}>Your Name</Label>
                         <Col md={12}>
                                     
-                        <Control.text model=".name" id="name" name="name"
+                        <Control.text model=".author" id="name" name="author"
                             placeholder="Your Name"
                             className="form-control"
                             validators={{ 
@@ -172,9 +174,9 @@ class CommentForm extends Component
                     </Row>
                            
                     <Row className="form-group">
-                        <Label htmlFor="comments" md={12}>Comment</Label>
+                        <Label htmlFor="text" md={12}>Comment</Label>
                         <Col md={12}>
-                            <Control.textarea model=".comments" id="comments" name="comments"
+                            <Control.textarea model=".text" id="comments" name="comments"
                                 rows="3"
                                 className="form-control"
                                 validators={{ 
