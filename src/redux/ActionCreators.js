@@ -1,18 +1,6 @@
 import * as ActionTypes from './ActionTypes';
 import {baseUrl} from '../shared/baseUrl';
 
-export const addComment = (campsiteId, rating, author, text) => ({
-    
-    type: ActionTypes.ADD_COMMENT,
-    payload: {
-        campsiteId: campsiteId,
-        rating: rating,
-        author: author,
-        text: text
-    }
-});
-
-
 //double arrow function is using react thunk to enable
 export const fetchCampsites = () => dispatch => {
 
@@ -99,6 +87,49 @@ export const addComments = comments => ({
     payload: comments
 });
 
+export const addComment = comment => ({
+    type: ActionTypes.ADD_COMMENT,
+    payload: comment
+});
+
+export const postComment = (campsiteId, rating, author, text) => dispatch => {
+    
+    const newComment = {
+        campsiteId: campsiteId,
+        rating: rating,
+        author: author,
+        text: text
+    };
+    newComment.date = new Date().toISOString();
+
+    return fetch(baseUrl + 'comments', 
+            // the default method is get, we want to post instead so we need to declare the argument here and provide a body prop
+            {method: "POST",
+            //JSON.stringify creates a JSON encoded version of the newComment object
+            body: JSON.stringify(newComment),
+            // this is so the server knows to expect the data to be formatted as JSON
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        .then(response => {
+                if (response.ok) {
+                    return response;
+                } else {
+                    const error = new Error(`Error ${response.status}: ${response.statusText}`);
+                    error.response = response;
+                    throw error;
+                }
+            },
+            error => { throw error; }
+        )
+        .then(response => response.json())
+        .then(response => dispatch(addComment(response)))
+        .catch(error => {
+            console.log('post comment', error.message);
+            alert('Your comment could not be posted\nError: ' + error.message);
+        });
+};
 
 
 export const fetchPromotions = () => dispatch => {
