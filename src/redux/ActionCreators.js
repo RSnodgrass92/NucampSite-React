@@ -1,43 +1,27 @@
 import * as ActionTypes from './ActionTypes';
-import {baseUrl} from '../shared/baseUrl';
+import { baseUrl } from '../shared/baseUrl';
 
-//double arrow function is using react thunk to enable
 export const fetchCampsites = () => dispatch => {
-
     dispatch(campsitesLoading());
 
-    // a call to fetch returns a promise
-    return fetch(baseUrl + "campsites")
-        // first check to see if we get any response back at all, if not catch
-        .then(response=> {
-            // response.ok will only be truthy if the http status code is in the successful range 200-299
-            if (response.ok) {
-                return response; 
-            }
-            else{
-                //status and status text are built in props of the response object
-                const error= new Error(`Error ${response.status}: ${response.statusText}`)
-                error.response = response; 
-                //sends directly to the next catch method
-                throw error;
-            } 
-        }, 
-            // no response from the server at all
-            error =>
-            {
-                const errMess= new Error(error.message);
+    return fetch(baseUrl + 'campsites')
+        .then(response => {
+                if (response.ok) {
+                    return response;
+                } else {
+                    const error = new Error(`Error ${response.status}: ${response.statusText}`);
+                    error.response = response;
+                    throw error;
+                }
+            },
+            error => {
+                const errMess = new Error(error.message);
                 throw errMess;
             }
         )
-
-    // when the promise resolves this then method will use the json method to convert
-    // the response from json to javascript, this will be the array of campsites
         .then(response => response.json())
-    // the json method returns a new promise for which the converted javascript array is a new response value when it resolves. 
-        .then(camps => dispatch(addCampsites(camps)))
-
-    //if any of these promises are rejected or if a throw keyword is reached they will be caught by the catch, 
-        .catch(error => dispatch(campsitesFailed(error.message)))
+        .then(campsites => dispatch(addCampsites(campsites)))
+        .catch(error => dispatch(campsitesFailed(error.message)));
 };
 
 export const campsitesLoading = () => ({
@@ -53,8 +37,6 @@ export const addCampsites = campsites => ({
     type: ActionTypes.ADD_CAMPSITES,
     payload: campsites
 });
-
-
 
 export const fetchComments = () => dispatch => {
     return fetch(baseUrl + 'comments')
@@ -102,16 +84,12 @@ export const postComment = (campsiteId, rating, author, text) => dispatch => {
     };
     newComment.date = new Date().toISOString();
 
-    return fetch(baseUrl + 'comments', 
-            // the default method is get, we want to post instead so we need to declare the argument here and provide a body prop
-            {method: "POST",
-            //JSON.stringify creates a JSON encoded version of the newComment object
-            body: JSON.stringify(newComment),
-            // this is so the server knows to expect the data to be formatted as JSON
-            headers: {
-                "Content-Type": "application/json"
-            }
-        })
+    return fetch(baseUrl + 'comments', {
+        method: 'POST',
+        body: JSON.stringify(newComment),
+        headers: {
+            'Content-Type': 'application/json',
+        }})
         .then(response => {
                 if (response.ok) {
                     return response;
@@ -130,7 +108,6 @@ export const postComment = (campsiteId, rating, author, text) => dispatch => {
             alert('Your comment could not be posted\nError: ' + error.message);
         });
 };
-
 
 export const fetchPromotions = () => dispatch => {
     dispatch(promotionsLoading());
@@ -168,3 +145,69 @@ export const addPromotions = promotions => ({
     type: ActionTypes.ADD_PROMOTIONS,
     payload: promotions
 });
+
+export const fetchPartners = () => dispatch => {
+    dispatch(partnersLoading());
+
+    return fetch(baseUrl + 'partners')
+        .then(response => {
+                if (response.ok) {
+                    return response;
+                } else {
+                    const error = new Error(`Error ${response.status}: ${response.statusText}`);
+                    error.response = response;
+                    throw error;
+                }
+            },
+            error => {
+                const errMess = new Error(error.message);
+                throw errMess;
+            }
+        )
+        .then(response => response.json())
+        .then(partners => dispatch(addPartners(partners)))
+        .catch(error => dispatch(partnersFailed(error.message)));
+};
+
+export const partnersLoading = () => ({
+    type: ActionTypes.PARTNERS_LOADING
+});
+
+export const partnersFailed = errMess => ({
+    type: ActionTypes.PARTNERS_FAILED,
+    payload: errMess
+});
+
+export const addPartners = partners => ({
+    type: ActionTypes.ADD_PARTNERS,
+    payload: partners
+});
+
+export const postFeedback = feedback => () => {
+    return fetch(baseUrl + 'feedback', {
+        method: 'POST',
+        body: JSON.stringify(feedback),
+        headers: {
+          'Content-Type': 'application/json'
+        },
+    })
+    .then(response => {
+            if (response.ok) {
+                return response;
+            } else {
+                const error = new Error(`Error ${response.status}: ${response.statusText}`);
+                error.response = response;
+                throw error;
+            }
+        },
+        error => { throw error; })
+        .then(response => response.json())
+        .then(response => { 
+            console.log('Feedback: ', response); 
+            alert('Thank you for your feedback!\n' + JSON.stringify(response));
+        })
+        .catch(error => { 
+            console.log('Feedback: ', error.message);
+            alert('Your feedback could not be posted\nError: ' + error.message);
+        });
+};

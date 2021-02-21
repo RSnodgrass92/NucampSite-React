@@ -160,4 +160,4 @@ export const COMMENTS =
         author: "McKenzie Sebastian",
         date: "2019-02-18T18:12Z"
     }
-]
+];
